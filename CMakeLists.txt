@@ -37,3 +37,6 @@ include_directories(
 add_executable(VaFRIC_warpper src/main.cpp src/VaFRIC/VaFRIC.cpp)
 target_link_libraries(VaFRIC_warpper ${catkin_LIBRARIES} ${CERES_LIBRARIES} dw)
 add_dependencies(VaFRIC_warpper VaFRIC_warpper_generate_messages_cpp)
+
+add_executable(save2files src/save2files.cpp src/VaFRIC/VaFRIC.cpp)
+target_link_libraries(save2files ${catkin_LIBRARIES} ${CERES_LIBRARIES} dw)

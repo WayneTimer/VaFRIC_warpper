@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="VaFRIC_warpper" type="save2files" name="save2files" output="screen">
+        <rosparam file="$(find VaFRIC_warpper)/config/VaFRIC.yaml" command="load" />
+    </node>
+</launch>
