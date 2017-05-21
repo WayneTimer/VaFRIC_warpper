@@ -357,7 +357,7 @@ void main_thread()
 
         cv_bridge::CvImage out_msg;
         out_msg.header.stamp = time_stamp;
-        out_msg.encoding = sensor_msgs::image_encodings::TYPE_8UC1;
+        out_msg.encoding = sensor_msgs::image_encodings::MONO8;
         out_msg.image = img.clone();
         pub_image.publish(out_msg.toImageMsg());
 
