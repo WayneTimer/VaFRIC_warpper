@@ -10,6 +10,7 @@
 #include <boost/thread.hpp>
 
 #include "VaFRIC/VaFRIC.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -42,6 +43,7 @@ vector<DEPTH_DATA> depth_vec;
 ros::Publisher pub_cur_pose, pub_image;
 ros::Time time_stamp;
 ros::Publisher pub_my_depth, pub_gt_depth, pub_error_map;
+double MAX_DEPTH_THRESHOLD, MAX_ERROR_THRESHOLD;
 
 void vafric_init()
 {
@@ -163,7 +165,7 @@ double cal_density(Eigen::MatrixXd& depth)
 
     for (int v=0;v<height;v++)
         for (int u=0;u<width;u++)
-            if (depth(v,u) < 700.0)
+            if (depth(v,u) < MAX_DEPTH_THRESHOLD)
                 ans = ans + 1.0;
     ans = ans / (height*width);
     return ans;
@@ -180,7 +182,7 @@ double cal_error(Eigen::MatrixXd& my_depth, Eigen::MatrixXd& gt_depth, Eigen::Ma
 
     for (int v=0;v<height;v++)
         for (int u=0;u<width;u++)
-            if (my_depth(v,u) < 700.0)
+            if (my_depth(v,u) < MAX_DEPTH_THRESHOLD)
             {
                 error_map(v,u) = fabs(my_depth(v,u) - gt_depth(v,u)) / fabs(gt_depth(v,u));
                 ans = ans + error_map(v,u);
@@ -223,7 +225,7 @@ void show_depth(const char* window_name, Eigen::MatrixXd &depth, ros::Publisher 
     int avg_cnt = 0;
     for (int v=0;v<height;v++)
         for (int u=0;u<width;u++)
-            if (depth(v,u) < 700.0f)
+            if (depth(v,u) < MAX_DEPTH_THRESHOLD)
             {
                 avg_dep += depth(v,u);
                 avg_cnt++;
@@ -279,7 +281,7 @@ void show_error_map(const char* window_name, Eigen::MatrixXd &error_map, ros::Pu
             }
     ROS_WARN("%s: %d x %d, max_error = %lf%%, min_error = %lf%%, avg_error = %lf%%",window_name, height, width, max_dep*100.0, min_dep*100.0, avg_dep*100.0/avg_cnt);
 
-    max_dep = 0.20;
+    max_dep = MAX_ERROR_THRESHOLD;
 
     cv::Mat show_img = cv::Mat::zeros(height,width,CV_8UC1);
     for (int v=0;v<height;v++)
@@ -375,7 +377,14 @@ int main(int argc, char **argv)
     pub_my_depth = nh.advertise<sensor_msgs::Image>("my_depth_visual",1000);
     pub_gt_depth = nh.advertise<sensor_msgs::Image>("gt_depth_visual",1000);
     pub_error_map = nh.advertise<sensor_msgs::Image>("error_map_visual",1000);
-    ros::Subscriber sub_depth = nh.subscribe("/motion_stereo_left/depth/image_raw",1000,depth_callback);
+
+    string sub_depth_topic;
+    sub_depth_topic = readParam<string>(nh, "sub_depth_topic");
+    MAX_DEPTH_THRESHOLD = readParam<double>(nh, "MAX_DEPTH_THRESHOLD");
+    MAX_ERROR_THRESHOLD = readParam<double>(nh, "MAX_ERROR_THRESHOLD");
+
+
+    ros::Subscriber sub_depth = nh.subscribe(sub_depth_topic, 1000, depth_callback);
 
     vafric_init();
 

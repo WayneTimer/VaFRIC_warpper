@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="VaFRIC_warpper" type="VaFRIC_warpper" name="VaFRIC_warpper" output="screen">
+        <rosparam file="$(find VaFRIC_warpper)/config/VaFRIC.yaml" command="load" />
+        <param name="sub_depth_topic" type="string" value="/motion_stereo_left/depth/image_raw" />
+        <param name="MAX_DEPTH_THRESHOLD" type="double" value="700.0" />
+        <param name="MAX_ERROR_THRESHOLD" type="double" value="0.20" />
+    </node>
+</launch>
