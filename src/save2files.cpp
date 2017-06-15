@@ -105,6 +105,7 @@ void vafric_input(int i, cv::Mat& img, Eigen::MatrixXd& depth,
             ROS_ERROR("Error: Read depth_file error !");
             exit(0);
         }
+        z /= 100.0;  // vafric dataset use cm, /100.0 to m
 
         t1 = (u-cali.cx[0])/cali.fx[0];
         t1*=t1;
@@ -142,9 +143,9 @@ ROS_INFO("gt_q: (w,x,y,z) = (%.2lf,%.2lf,%.2lf,%.2lf)",
             gt_q.w(),gt_q.x(),gt_q.y(),gt_q.z()
         );
 
-    pose.position.x = gt_p(0);
-    pose.position.y = gt_p(1);
-    pose.position.z = gt_p(2);
+    pose.position.x = gt_p(0) / 100.0;    // vafric dataset use cm, /100.0 to m
+    pose.position.y = gt_p(1) / 100.0;    // vafric dataset use cm, /100.0 to m
+    pose.position.z = gt_p(2) / 100.0;    // vafric dataset use cm, /100.0 to m
     pose.orientation.w = gt_q.w();
     pose.orientation.x = gt_q.x();
     pose.orientation.y = gt_q.y();
